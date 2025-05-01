@@ -1,0 +1,1 @@
+char* replace_part(const char* str, const char* old, const char* newStr);
