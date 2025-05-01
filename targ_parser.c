@@ -3,7 +3,7 @@
 #include<string.h>
 #include "string_action.h"
 //arg format
-struct targ_definition{ char *name; char *shortname; char *value; };
+struct targ_definition{ char *name; char *shortname; char *value; char *targ_used; int used; };
 //arg_options
 struct targ_options {
     struct  targ_definition *targs;
@@ -34,40 +34,42 @@ struct targ_options parse_args(int argc, char** argv )
     while (argc > 0) {
         while(i < targi)
         {
-            printf("%d is i and %d is targi",i,targi);
             struct targ_definition targ = options.targs[i];
-            if  
-            (    
-                    strcmp(replace_part("--", "", argv[0]), targ.name) == 0 
-                ||  
-                    strcmp(replace_part("-", "", argv[0]), targ.shortname) == 0
-            )       
-            {
-                options.targs[i].name = targ.name;
-                options.targs[i].shortname = targ.shortname;
-                options.targs[i].value = (argc > args_met+1) ? argv[args_met+1] : NULL; // Make sure to check bounds
+            char* argname = targ.name;
+            char* shortguess = malloc(sizeof(argname)+sizeof("--"));
+            char* longguess = malloc(sizeof(argname)+sizeof("-"));
+            sprintf(longguess,"--%s",argname);
+            sprintf(shortguess,"-%s",argname);
+            if  (    (strcmp(*argv, shortguess) == 0 ) ||  (strcmp(*argv, longguess) == 0 )  )   {
+                options.targs[i].name       = targ.name;
+                options.targs[i].shortname  = targ.shortname;
+                options.targs[i].used       = 1;
+                options.targs[i].targ_used  = *argv;
+                options.targs[i].value = sizeof(argv) > args_met ? argv[++args_met] : "NULL" ; // Make sure to check bounds
+                argc--; argv++; // Move to next argument
             }
-            argc--; argv++; // Move to next argument
             i++;
         }
         args_met++;
         argc--; argv++; // Move to the next argument if no match found
     }
-    return options;
-    // return get_args(options.targs);
+    // return options;
+    return get_args(options.targs);
 }
 int main(int argc, char** argv)
 {
     int i = 0;
     add_cmd_arg("help","h");
     add_cmd_arg("source","s");
-    printf("here");
     struct targ_options options = parse_args(argc,argv);
-    printf("nere");
     while(i < targi)
     {
         struct targ_definition targ = options.targs[i];
-        printf("%s == %s \n",targ.name,targ.value);
+        if(targ.used)
+        {
+            printf("argument used = %s \n",targ.targ_used);
+            printf("%s = %s \n",targ.name,targ.value);
+        }
         i++;
     }
 }
