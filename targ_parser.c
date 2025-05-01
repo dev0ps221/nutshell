@@ -49,11 +49,9 @@ struct targ_options parse_args(int argc, char** argv )
             }
             argc--; argv++; // Move to next argument
             i++;
-            break;
         }
         args_met++;
         argc--; argv++; // Move to the next argument if no match found
-        break;
     }
     return options;
     // return get_args(options.targs);
